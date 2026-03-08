@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SonicEnhance Pro - MP3 Optimizer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e1e2e 0%, #2d2d44 100%);
+            min-height: 100vh;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+            background: linear-gradient(45deg, #00d4ff, #7b2cbf);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #888;
+            margin-bottom: 30px;
+            font-size: 0.9em;
+        }
+
+        .upload-section {
+            border: 2px dashed rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            margin-bottom: 30px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .upload-section:hover {
+            border-color: #00d4ff;
+            background: rgba(0, 212, 255, 0.05);
+        }
+
+        .upload-section.dragover {
+            border-color: #7b2cbf;
+            background: rgba(123, 44, 191, 0.1);
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .upload-btn {
+            background: linear-gradient(45deg, #00d4ff, #7b2cbf);
+            color: white;
+            padding: 12px 30px;
+            border-radius: 25px;
+            border: none;
+            cursor: pointer;
+            font-size: 1em;
+            margin-top: 15px;
+            transition: transform 0.2s;
+        }
+
+        .upload-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .file-info {
+            margin-top: 15px;
+            color: #00d4ff;
+            font-size: 0.9em;
+        }
+
+        .controls-section {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .visualizer {
+            width: 100%;
+            height: 150px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        canvas {
+            width: 100%;
+            height: 100%;
+        }
+
+        .playback-controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .control-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+            transition: all 0.3s;
+        }
+
+        .control-btn:hover {
+            background: rgba(0, 212, 255, 0.2);
+            border-color: #00d4ff;
+            transform: scale(1.1);
+        }
+
+        .control-btn.active {
+            background: rgba(0, 212, 255, 0.3);
+            border-color: #00d4ff;
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+        }
+
+        .progress-container {
+            width: 100%;
+            margin-bottom: 30px;
+        }
+
+        .time-display {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-size: 0.85em;
+            color: #888;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00d4ff, #7b2cbf);
+            border-radius: 3px;
+            width: 0%;
+            transition: width 0.1s;
+            position: relative;
+        }
+
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            right: -6px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 12px;
+            height: 12px;
+            background: #fff;
+            border-radius: 50%;
+            box-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+        }
+
+        .enhancement-panel {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+        }
+
+        .panel-title {
+            font-size: 1.2em;
+            margin-bottom: 20px;
+            color: #00d4ff;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .eq-container {
+            display: flex;
+            justify-content: space-around;
+            align-items: flex-end;
+            height: 150px;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .eq-band {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .eq-slider {
+            writing-mode: bt-lr;
+            -webkit-appearance: slider-vertical;
+            width: 30px;
+            height: 100px;
+            background: transparent;
+        }
+
+        .eq-label {
+            font-size: 0.75em;
+            color: #888;
+            text-align: center;
+        }
+
+        .toggle-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 50px;
+            height: 26px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 13px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .toggle-switch.active {
+            background: #00d4ff;
+        }
+
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            width: 22px;
+            height: 22px;
+            background: white;
+            border-radius: 50%;
+            top: 2px;
+            left: 2px;
+            transition: transform 0.3s;
+        }
+
+        .toggle-switch.active::after {
+            transform: translateX(24px);
+        }
+
+        .volume-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .volume-slider {
+            flex: 1;
+            height: 6px;
+            -webkit-appearance: none;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            outline: none;
+        }
+
+        .volume-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            background: #00d4ff;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+        }
+
+        .preset-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+
+        .preset-btn {
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.85em;
+            transition: all 0.3s;
+        }
+
+        .preset-btn:hover, .preset-btn.active {
+            background: rgba(0, 212, 255, 0.3);
+            border-color: #00d4ff;
+        }
+
+        .status {
+            text-align: center;
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 0.9em;
+        }
+
+        .status.processing {
+            background: rgba(255, 193, 7, 0.2);
+            color: #ffc107;
+        }
+
+        .status.ready {
+            background: rgba(40, 167, 69, 0.2);
+            color: #28a745;
+        }
+
+        .status.error {
+            background: rgba(220, 53, 69, 0.2);
+            color: #dc3545;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+            h1 {
+                font-size: 1.8em;
+            }
+            .eq-container {
+                height: 120px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎵 SonicEnhance Pro</h1>
+        <p class="subtitle">Professional MP3 Enhancement for Wired Earphones</p>
+
+        <div class="upload-section" id="uploadSection">
+            <div style="font-size: 3em; margin-bottom: 15px;">📁</div>
+            <h3>Drop your MP3 file here</h3>
+            <p style="color: #888; margin: 10px 0;">or</p>
+            <button class="upload-btn" onclick="document.getElementById('fileInput').click()">
+                Choose File
+            </button>
+            <input type="file" id="fileInput" accept="audio/mp3,audio/mpeg,audio/wav,audio/*">
+            <div class="file-info" id="fileInfo"></div>
+        </div>
+
+        <div class="controls-section" id="controlsSection">
+            <div class="visualizer">
+                <canvas id="visualizer"></canvas>
+            </div>
+
+            <div class="progress-container">
+                <div class="time-display">
+                    <span id="currentTime">0:00</span>
+                    <span id="duration">0:00</span>
+                </div>
+                <div class="progress-bar" id="progressBar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+            </div>
+
+            <div class="playback-controls">
+                <button class="control-btn" id="btnStop" title="Stop">⏹</button>
+                <button class="control-btn" id="btnPrev" title="Previous 10s">⏮</button>
+                <button class="control-btn active" id="btnPlay" title="Play/Pause">▶</button>
+                <button class="control-btn" id="btnNext" title="Next 10s">⏭</button>
+                <button class="control-btn" id="btnLoop" title="Loop">🔁</button>
+            </div>
+
+            <div class="enhancement-panel">
+                <div class="panel-title">
+                    🎚️ Audio Enhancement
+                    <span style="font-size: 0.7em; color: #888;">(Optimized for Medium Bass Earphones)</span>
+                </div>
+
+                <div class="toggle-row">
+                    <span>🔊 Maximum Clarity Boost</span>
+                    <div class="toggle-switch active" id="clarityToggle"></div>
+                </div>
+
+                <div class="toggle-row">
+                    <span>🎧 Earphone Optimization</span>
+                    <div class="toggle-switch active" id="earphoneToggle"></div>
+                </div>
+
+                <div class="toggle-row">
+                    <span>🥁 Bass Enhancement</span>
+                    <div class="toggle-switch active" id="bassToggle"></div>
+                </div>
+
+                <div class="toggle-row">
+                    <span>✨ Spatial Audio</span>
+                    <div class="toggle-switch" id="spatialToggle"></div>
+                </div>
+
+                <div class="preset-buttons">
+                    <button class="preset-btn active" data-preset="earphone">🎧 Wired Earphones</button>
+                    <button class="preset-btn" data-preset="bass">🔊 Bass Boost</button>
+                    <button class="preset-btn" data-preset="vocal">🎤 Vocal Clarity</button>
+                    <button class="preset-btn" data-preset="flat">📊 Flat</button>
+                </div>
+
+                <div class="volume-container">
+                    <span>🔈</span>
+                    <input type="range" class="volume-slider" id="volumeSlider" min="0" max="200" value="100">
+                    <span id="volumeValue">100%</span>
+                </div>
+            </div>
+
+            <div class="status ready" id="status">
+                ✅ Ready to play - Enhanced for your earphones
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Audio Context and Nodes
+        let audioContext;
+        let audioBuffer;
+        let sourceNode;
+        let gainNode;
+        let analyser;
+        let biquadFilters = [];
+        let convolver;
+        let stereoPanner;
+        
+        // State
+        let isPlaying = false;
+        let isLooping = false;
+        let startTime = 0;
+        let pauseTime = 0;
+        let animationId;
+        let currentVolume = 1.0;
+
+        // DOM Elements
+        const fileInput = document.getElementById('fileInput');
+        const uploadSection = document.getElementById('uploadSection');
+        const controlsSection = document.getElementById('controlsSection');
+        const fileInfo = document.getElementById('fileInfo');
+        const canvas = document.getElementById('visualizer');
+        const canvasCtx = canvas.getContext('2d');
+        const progressBar = document.getElementById('progressBar');
+        const progressFill = document.getElementById('progressFill');
+        const currentTimeEl = document.getElementById('currentTime');
+        const durationEl = document.getElementById('duration');
+
+        // Initialize Audio Context
+        function initAudioContext() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                setupAudioChain();
+            }
+            if (audioContext.state === 'suspended') {
+                audioContext.resume();
+            }
+        }
+
+        // Setup Audio Processing Chain
+        function setupAudioChain() {
+            // Create nodes
+            gainNode = audioContext.createGain();
+            analyser = audioContext.createAnalyser();
+            analyser.fftSize = 256;
+            stereoPanner = audioContext.createStereoPanner();
+            
+            // Create EQ filters (3-band for simplicity and performance)
+            const frequencies = [100, 1000, 10000]; // Low, Mid, High
+            biquadFilters = frequencies.map((freq, i) => {
+                const filter = audioContext.createBiquadFilter();
+                filter.type = i === 0 ? 'lowshelf' : i === 2 ? 'highshelf' : 'peaking';
+                filter.frequency.value = freq;
+                filter.gain.value = 0;
+                return filter;
+            });
+
+            // Create convolver for spatial enhancement
+            convolver = audioContext.createConvolver();
+            createReverbImpulse();
+
+            // Connect chain: source -> EQ filters -> convolver -> gain -> stereo panner -> analyser -> destination
+            let lastNode = biquadFilters[0];
+            for (let i = 1; i < biquadFilters.length; i++) {
+                lastNode.connect(biquadFilters[i]);
+                lastNode = biquadFilters[i];
+            }
+            
+            lastNode.connect(convolver);
+            convolver.connect(gainNode);
+            gainNode.connect(stereoPanner);
+            stereoPanner.connect(analyser);
+            analyser.connect(audioContext.destination);
+
+            // Set initial earphone-optimized EQ
+            applyEarphonePreset();
+        }
+
+        // Create synthetic reverb impulse for spatial enhancement
+        function createReverbImpulse() {
+            const rate = audioContext.sampleRate;
+            const length = rate * 0.5; // 0.5 seconds
+            const impulse = audioContext.createBuffer(2, length, rate);
+            
+            for (let channel = 0; channel < 2; channel++) {
+                const channelData = impulse.getChannelData(channel);
+                for (let i = 0; i < length; i++) {
+                    channelData[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / length, 2) * 0.5;
+                }
+            }
+            convolver.buffer = impulse;
+        }
+
+        // File Upload Handling
+        uploadSection.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadSection.classList.add('dragover');
+        });
+
+        uploadSection.addEventListener('dragleave', () => {
+            uploadSection.classList.remove('dragover');
+        });
+
+        uploadSection.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadSection.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) handleFile(files[0]);
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) handleFile(e.target.files[0]);
+        });
+
+        function handleFile(file) {
+            if (!file.type.includes('audio')) {
+                showStatus('Please upload an audio file', 'error');
+                return;
+            }
+
+            fileInfo.textContent = `📀 ${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)`;
+            
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                try {
+                    initAudioContext();
+                    const arrayBuffer = e.target.result;
+                    audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+                    
+                    controlsSection.style.display = 'block';
+                    durationEl.textContent = formatTime(audioBuffer.duration);
+                    showStatus('✅ Audio loaded and enhanced for earphones', 'ready');
+                    
+                    // Auto-play
+                    playAudio();
+                } catch (err) {
+                    showStatus('Error decoding audio file', 'error');
+                    console.error(err);
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        // Playback Controls
+        function playAudio() {
+            if (isPlaying) return;
+            
+            sourceNode = audioContext.createBufferSource();
+            sourceNode.buffer = audioBuffer;
+            sourceNode.loop = isLooping;
+            
+            // Connect to first EQ filter
+            sourceNode.connect(biquadFilters[0]);
+            
+            // Set start time considering pause offset
+            const offset = pauseTime % audioBuffer.duration;
+            sourceNode.start(0, offset);
+            startTime = audioContext.currentTime - offset;
+            
+            isPlaying = true;
+            updatePlayButton();
+            visualize();
+            updateProgress();
+        }
+
+        function pauseAudio() {
+            if (!isPlaying) return;
+            
+            sourceNode.stop();
+            pauseTime = audioContext.currentTime - startTime;
+            isPlaying = false;
+            updatePlayButton();
+            cancelAnimationFrame(animationId);
+        }
+
+        function stopAudio() {
+            if (sourceNode) {
+                sourceNode.stop();
+                sourceNode.disconnect();
+            }
+            pauseTime = 0;
+            isPlaying = false;
+            updatePlayButton();
+            progressFill.style.width = '0%';
+            currentTimeEl.textContent = '0:00';
+            cancelAnimationFrame(animationId);
+        }
+
+        function seekAudio(percentage) {
+            const wasPlaying = isPlaying;
+            if (isPlaying) pauseAudio();
+            
+            pauseTime = (percentage / 100) * audioBuffer.duration;
+            
+            if (wasPlaying) playAudio();
+            else {
+                currentTimeEl.textContent = formatTime(pauseTime);
+                progressFill.style.width = percentage + '%';
+            }
+        }
+
+        function updatePlayButton() {
+            const btn = document.getElementById('btnPlay');
+            btn.textContent = isPlaying ? '⏸' : '▶';
+            btn.classList.toggle('active', isPlaying);
+        }
+
+        // Visualizer
+        function visualize() {
+            const bufferLength = analyser.frequencyBinCount;
+            const dataArray = new Uint8Array(bufferLength);
+            
+            canvas.width = canvas.offsetWidth;
+            canvas.height = canvas.offsetHeight;
+            
+            function draw() {
+                animationId = requestAnimationFrame(draw);
+                analyser.getByteFrequencyData(dataArray);
+                
+                canvasCtx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+                canvasCtx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                const barWidth = (canvas.width / bufferLength) * 2.5;
+                let barHeight;
+                let x = 0;
+                
+                for (let i = 0; i < bufferLength; i++) {
+                    barHeight = (dataArray[i] / 255) * canvas.height;
+                    
+                    const gradient = canvasCtx.createLinearGradient(0, canvas.height, 0, canvas.height - barHeight);
+                    gradient.addColorStop(0, '#00d4ff');
+                    gradient.addColorStop(1, '#7b2cbf');
+                    
+                    canvasCtx.fillStyle = gradient;
+                    canvasCtx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
+                    
+                    x += barWidth + 1;
+                }
+            }
+            draw();
+        }
+
+        // Progress Update
+        function updateProgress() {
+            if (!isPlaying) return;
+            
+            const current = audioContext.currentTime - startTime;
+            const duration = audioBuffer.duration;
+            const percentage = (current / duration) * 100;
+            
+            progressFill.style.width = percentage + '%';
+            currentTimeEl.textContent = formatTime(current);
+            
+            if (current >= duration && !isLooping) {
+                stopAudio();
+            } else {
+                requestAnimationFrame(updateProgress);
+            }
+        }
+
+        // Format Time
+        function formatTime(seconds) {
+            if (isNaN(seconds)) return '0:00';
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${mins}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        // Control Event Listeners
+        document.getElementById('btnPlay').addEventListener('click', () => {
+            if (isPlaying) pauseAudio();
+            else playAudio();
+        });
+
+        document.getElementById('btnStop').addEventListener('click', stopAudio);
+
+        document.getElementById('btnPrev').addEventListener('click', () => {
+            const newTime = Math.max(0, (audioContext.currentTime - startTime) - 10);
+            seekAudio((newTime / audioBuffer.duration) * 100);
+        });
+
+        document.getElementById('btnNext').addEventListener('click', () => {
+            const newTime = Math.min(audioBuffer.duration, (audioContext.currentTime - startTime) + 10);
+            seekAudio((newTime / audioBuffer.duration) * 100);
+        });
+
+        document.getElementById('btnLoop').addEventListener('click', function() {
+            isLooping = !isLooping;
+            this.classList.toggle('active', isLooping);
+            if (sourceNode) sourceNode.loop = isLooping;
+        });
+
+        progressBar.addEventListener('click', (e) => {
+            const rect = progressBar.getBoundingClientRect();
+            const percentage = ((e.clientX - rect.left) / rect.width) * 100;
+            seekAudio(percentage);
+        });
+
+        // Volume Control
+        const volumeSlider = document.getElementById('volumeSlider');
+        const volumeValue = document.getElementById('volumeValue');
+        
+        volumeSlider.addEventListener('input', (e) => {
+            const value = e.target.value;
+            currentVolume = value / 100;
+            if (gainNode) gainNode.gain.value = currentVolume;
+            volumeValue.textContent = value + '%';
+        });
+
+        // Enhancement Toggles
+        document.getElementById('clarityToggle').addEventListener('click', function() {
+            this.classList.toggle('active');
+            applyEnhancements();
+        });
+
+        document.getElementById('earphoneToggle').addEventListener('click', function() {
+            this.classList.toggle('active');
+            applyEnhancements();
+        });
+
+        document.getElementById('bassToggle').addEventListener('click', function() {
+            this.classList.toggle('active');
+            applyEnhancements();
+        });
+
+        document.getElementById('spatialToggle').addEventListener('click', function() {
+            this.classList.toggle('active');
+            applyEnhancements();
+        });
+
+        // Preset Buttons
+        document.querySelectorAll('.preset-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                
+                const preset = this.dataset.preset;
+                switch(preset) {
+                    case 'earphone':
+                        applyEarphonePreset();
+                        break;
+                    case 'bass':
+                        applyBassPreset();
+                        break;
+                    case 'vocal':
+                        applyVocalPreset();
+                        break;
+                    case 'flat':
+                        applyFlatPreset();
+                        break;
+                }
+            });
+        });
+
+        // EQ Presets
+        function applyEarphonePreset() {
+            // Optimized for wired earphones with medium bass
+            biquadFilters[0].gain.value = 6;  // Boost lows slightly
+            biquadFilters[1].gain.value = 3;  // Slight mid boost for clarity
+            biquadFilters[2].gain.value = 4;  // High boost for detail
+            if (convolver) convolver.gain = 0.3;
+            updateToggles(true, true, true, false);
+        }
+
+        function applyBassPreset() {
+            biquadFilters[0].gain.value = 12;
+            biquadFilters[1].gain.value = 0;
+            biquadFilters[2].gain.value = 2;
+            updateToggles(true, false, true, false);
+        }
+
+        function applyVocalPreset() {
+            biquadFilters[0].gain.value = -2;
+            biquadFilters[1].gain.value = 8;
+            biquadFilters[2].gain.value = 6;
+            updateToggles(true, true, false, false);
+        }
+
+        function applyFlatPreset() {
+            biquadFilters[0].gain.value = 0;
+            biquadFilters[1].gain.value = 0;
+            biquadFilters[2].gain.value = 0;
+            updateToggles(false, false, false, false);
+        }
+
+        function updateToggles(clarity, earphone, bass, spatial) {
+            document.getElementById('clarityToggle').classList.toggle('active', clarity);
+            document.getElementById('earphoneToggle').classList.toggle('active', earphone);
+            document.getElementById('bassToggle').classList.toggle('active', bass);
+            document.getElementById('spatialToggle').classList.toggle('active', spatial);
+            applyEnhancements();
+        }
+
+        function applyEnhancements() {
+            const clarity = document.getElementById('clarityToggle').classList.contains('active');
+            const earphone = document.getElementById('earphoneToggle').classList.contains('active');
+            const bass = document.getElementById('bassToggle').classList.contains('active');
+            const spatial = document.getElementById('spatialToggle').classList.contains('active');
+            
+            // Apply dynamic adjustments based on toggles
+            if (clarity && earphone) {
+                // Maximize clarity for earphones
+                biquadFilters[1].gain.value = Math.max(biquadFilters[1].gain.value, 4);
+                biquadFilters[2].gain.value = Math.max(biquadFilters[2].gain.value, 5);
+            }
+            
+            if (bass) {
+                biquadFilters[0].gain.value = Math.max(biquadFilters[0].gain.value, 6);
+            }
+            
+            if (spatial && convolver) {
+                // Enhance stereo width
+                stereoPanner.pan.value = 0; // Center
+            }
+        }
+
+        function showStatus(message, type) {
+            const status = document.getElementById('status');
+            status.textContent = message;
+            status.className = 'status ' + type;
+        }
+
+        // Handle window resize for canvas
+        window.addEventListener('resize', () => {
+            if (canvas) {
+                canvas.width = canvas.offsetWidth;
+                canvas.height = canvas.offsetHeight;
+            }
+        });
+    </script>
+</body>
+</html>
